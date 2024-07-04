@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-board {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        #word-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #input-word {
+            font-size: 24px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+        }
+        #results {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button id="ready-btn">Ready?</button>
+    <div id="game-board">
+        <p id="instruction">Type the word quickly</p>
+        <p id="word-display"></p>
+        <input type="text" id="input-word" />
+    </div>
+    <div id="results">
+        <p id="average-time"></p>
+    </div>
+    <script>
+        const readyBtn = document.getElementById('ready-btn');
+        const gameBoard = document.getElementById('game-board');
+        const instruction = document.getElementById('instruction');
+        const wordDisplay = document.getElementById('word-display');
+        const inputWord = document.getElementById('input-word');
+        const results = document.getElementById('results');
+        const averageTime = document.getElementById('average-time');
+
+        const words = ["apple", "orange", "grape", "mango", "peach", "plum"];
+        let reactionTimes = [];
+        let currentWord;
+        let startTime;
+        let trials = 0;
+
+        readyBtn.addEventListener('click', () => {
+            readyBtn.style.display = 'none';
+            instruction.style.display = 'block';
+            setTimeout(startGame, 5000);
+        });
+
+        function startGame() {
+            instruction.style.display = 'none';
+            gameBoard.style.display = 'flex';
+            nextTrial();
+        }
+
+        function nextTrial() {
+            if (trials >= 10) {
+                endGame();
+                return;
+            }
+
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            wordDisplay.textContent = currentWord;
+            inputWord.value = '';
+            inputWord.focus();
+            startTime = new Date().getTime();
+        }
+
+        inputWord.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                let endTime = new Date().getTime();
+                let reactionTime = endTime - startTime;
+                reactionTimes.push(reactionTime);
+                trials++;
+                nextTrial();
+            }
+        });
+
+        function endGame() {
+            gameBoard.style.display = 'none';
+            results.style.display = 'block';
+            let averageReactionTime = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+            averageTime.textContent = `Average reaction time: ${averageReactionTime.toFixed(2)} ms`;
+        }
+    </script>
+</body>
+</html>
