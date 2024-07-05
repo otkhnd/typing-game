@@ -53,23 +53,22 @@
         const results = document.getElementById('results');
         const averageTime = document.getElementById('average-time');
 
-        const words = ["apple", "orange", "grape", "mango", "peach", "plum"];
+        const words = ["apple", "orange", "grape", "mango", "peach", "plum", "berry", "melon", "lemon", "pear"];
         let reactionTimes = [];
         let currentWord;
         let startTime;
         let trials = 0;
+        let usedWords = new Set();
 
         readyBtn.addEventListener('click', () => {
             readyBtn.style.display = 'none';
             instruction.style.display = 'block';
-            setTimeout(startGame, 5000);
+            setTimeout(() => {
+                instruction.style.display = 'none';
+                gameBoard.style.display = 'flex';
+                nextTrial();
+            }, 5000);
         });
-
-        function startGame() {
-            instruction.style.display = 'none';
-            gameBoard.style.display = 'flex';
-            nextTrial();
-        }
 
         function nextTrial() {
             if (trials >= 10) {
@@ -77,7 +76,11 @@
                 return;
             }
 
-            currentWord = words[Math.floor(Math.random() * words.length)];
+            do {
+                currentWord = words[Math.floor(Math.random() * words.length)];
+            } while (usedWords.has(currentWord));
+
+            usedWords.add(currentWord);
             wordDisplay.textContent = currentWord;
             inputWord.value = '';
             inputWord.focus();
@@ -103,3 +106,4 @@
     </script>
 </body>
 </html>
+
