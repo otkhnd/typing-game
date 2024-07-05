@@ -37,9 +37,10 @@
 <body>
     <button id="ready-btn">Ready?</button>
     <div id="game-board">
-        <p id="instruction">Type the word quickly</p>
+        <p id="instruction" style="display: none;">Type the word quickly</p>
         <p id="word-display"></p>
         <input type="text" id="input-word" />
+        <button id="next-btn" style="display: none;">NEXT</button>
     </div>
     <div id="results">
         <p id="average-time"></p>
@@ -50,37 +51,39 @@
         const instruction = document.getElementById('instruction');
         const wordDisplay = document.getElementById('word-display');
         const inputWord = document.getElementById('input-word');
+        const nextBtn = document.getElementById('next-btn');
         const results = document.getElementById('results');
         const averageTime = document.getElementById('average-time');
 
-        const words = ["apple", "orange", "grape", "mango", "peach", "plum", "berry", "melon", "lemon", "pear"];
+        const words = ["apple", "orange", "grape", "mango", "peach", "plum", "berry", "melon", "kiwi", "lemon"];
         let reactionTimes = [];
         let currentWord;
         let startTime;
         let trials = 0;
-        let usedWords = new Set();
+        const totalTrials = 10;
 
         readyBtn.addEventListener('click', () => {
             readyBtn.style.display = 'none';
             instruction.style.display = 'block';
             setTimeout(() => {
                 instruction.style.display = 'none';
-                gameBoard.style.display = 'flex';
-                nextTrial();
+                startGame();
             }, 5000);
         });
 
+        function startGame() {
+            gameBoard.style.display = 'flex';
+            nextTrial();
+        }
+
         function nextTrial() {
-            if (trials >= 10) {
+            if (trials >= totalTrials) {
                 endGame();
                 return;
             }
 
-            do {
-                currentWord = words[Math.floor(Math.random() * words.length)];
-            } while (usedWords.has(currentWord));
-
-            usedWords.add(currentWord);
+            let availableWords = words.filter(word => !reactionTimes.some(rt => rt.word === word));
+            currentWord = availableWords[Math.floor(Math.random() * availableWords.length)];
             wordDisplay.textContent = currentWord;
             inputWord.value = '';
             inputWord.focus();
@@ -89,21 +92,26 @@
 
         inputWord.addEventListener('keyup', (event) => {
             if (event.key === 'Enter') {
-                let endTime = new Date().getTime();
-                let reactionTime = endTime - startTime;
-                reactionTimes.push(reactionTime);
-                trials++;
-                nextTrial();
+                handleWordInput();
             }
         });
+
+        nextBtn.addEventListener('click', handleWordInput);
+
+        function handleWordInput() {
+            let endTime = new Date().getTime();
+            let reactionTime = endTime - startTime;
+            reactionTimes.push({ word: currentWord, time: reactionTime });
+            trials++;
+            nextTrial();
+        }
 
         function endGame() {
             gameBoard.style.display = 'none';
             results.style.display = 'block';
-            let averageReactionTime = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+            let averageReactionTime = reactionTimes.reduce((a, b) => a + b.time, 0) / reactionTimes.length;
             averageTime.textContent = `Average reaction time: ${averageReactionTime.toFixed(2)} ms`;
         }
     </script>
 </body>
 </html>
-
